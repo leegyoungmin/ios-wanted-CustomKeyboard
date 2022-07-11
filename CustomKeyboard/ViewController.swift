@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class ViewController: UIViewController {
     
@@ -17,11 +18,15 @@ class ViewController: UIViewController {
             forCellReuseIdentifier: ReviewListTableViewCell.identifier
         )
         return tableView
+    lazy var commentButton: CommentButton = {
+        let button = CommentButton()
+        button.delegate = self
+        return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         setupLayout()
         
     }
@@ -43,19 +48,30 @@ extension ViewController: UITableViewDataSource {
 private extension ViewController {
     func setupLayout() {
         [
-            reviewListTableView
+            reviewListTableView,
+            commentButton
         ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
         
-        
         NSLayoutConstraint.activate([
             reviewListTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             reviewListTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             reviewListTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            reviewListTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        
+            reviewListTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            commentButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: 20),
+            commentButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -20),
+//            commentButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            commentButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+        ]) 
+    }
+}
+
+extension ViewController: CommentButtonDelegate {
+    func present() {
+        let controller = WriteController()
+        self.present(controller, animated: true)
     }
 }
