@@ -48,12 +48,29 @@ class ReviewListViewController: UIViewController {
     func bindPostSuccess() {
         viewModel.isSuccess.bind { isSuccess in
             if isSuccess {
-                self.commentButton.toggleAnimation(isSuccess)
+                self.clearText()
             }
         }
     }
     
-
+    func clearText() {
+        DispatchQueue.main.async { [weak self] in
+            guard let presentButton = self?.commentButton.stackView.arrangedSubviews[1] as? UITextField else { return }
+            presentButton.text = nil
+        }
+        
+        DispatchQueue.main.async {
+            self.updateClearView()
+        }
+    }
+    
+    
+    private func updateClearView() {
+        UIView.animate(withDuration: 0.5) {
+            self.commentButton.showProfileImage()
+            self.commentButton.stackView.layoutIfNeeded()
+        }
+    }
 }
 
 //MARK: - CommentButton Delegate
@@ -65,7 +82,7 @@ extension ReviewListViewController: CommentButtonDelegate {
     }
     
     func post() {
-        guard let commentView = commentButton.stackView.arrangedSubviews[1] as? UITextView,
+        guard let commentView = commentButton.stackView.arrangedSubviews[1] as? UITextField,
               let comment = commentView.text else { return }
         viewModel.postComment(comment)
         
@@ -76,14 +93,20 @@ extension ReviewListViewController: CommentButtonDelegate {
 extension ReviewListViewController: CommentEditDelegate {
     var commentValue: String? {
         get {
-            guard let textfield = commentButton.stackView.arrangedSubviews[1] as? UITextView else { return "" }
+            guard let textfield = commentButton.stackView.arrangedSubviews[1] as? UITextField else { return "" }
             return textfield.text
         }
         set {
-            guard let textfield = commentButton.stackView.arrangedSubviews[1] as? UITextView else { return }
+            guard let textfield = commentButton.stackView.arrangedSubviews[1] as? UITextField else { return }
             textfield.text = newValue
-            commentButton.toggleAnimation(false)
-            
+            updateInputView()
+        }
+    }
+    
+    private func updateInputView() {
+        UIView.animate(withDuration: 0.5) {
+            self.commentButton.hideProfileImage()
+            self.commentButton.layoutIfNeeded()
         }
     }
 }
@@ -119,8 +142,8 @@ private extension ReviewListViewController {
         }
         
         NSLayoutConstraint.activate([
-            commentButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            commentButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            commentButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: 20),
+            commentButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -20),
             commentButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             commentButton.heightAnchor.constraint(equalToConstant: 50),
             
